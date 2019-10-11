@@ -1,0 +1,93 @@
+{
+  "name": "project-template-2019",
+  "version": "1.0.0",
+  "description": "start-kit for projects",
+  "scripts": {
+    "start": "NODE_ENV=development gulp build -f tools/index.js --cwd ./ && NODE_ENV=development gulp -f tools/index.js --cwd ./",
+    "build": "NODE_ENV=production gulp build -f tools/index.js --cwd ./",
+    "precommit": "lint-staged",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint:js": "eslint src/js",
+    "lint:style": "stylelint src/style",
+    "fix:js": "eslint --fix src/js",
+    "fix:style": "stylelint --fix src/style"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.(scss|css)": [
+      "stylelint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "author": "Naokazu Shimabukuro",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "7.4.0",
+    "@babel/preset-env": "7.4.2",
+    "@gfx/zopfli": "1.0.11",
+    "autodll-webpack-plugin": "0.4.2",
+    "autoprefixer": "9.5.0",
+    "babel-eslint": "10.0.1",
+    "babel-loader": "8.0.5",
+    "browser-sync": "^2.26.7",
+    "compression-webpack-plugin": "2.0.0",
+    "css-mqpacker": "7.0.0",
+    "csswring": "7.0.0",
+    "del": "4.0.0",
+    "eslint": "5.15.3",
+    "eslint-config-prettier": "4.1.0",
+    "eslint-loader": "2.1.2",
+    "eslint-plugin-prettier": "3.0.1",
+    "gulp": "4.0.0",
+    "gulp-changed": "3.2.0",
+    "gulp-cli": "2.0.1",
+    "gulp-data": "1.3.1",
+    "gulp-if": "2.0.2",
+    "gulp-imagemin": "5.0.3",
+    "gulp-load-plugins": "1.5.0",
+    "gulp-notify": "3.2.0",
+    "gulp-plumber": "1.2.1",
+    "gulp-postcss": "8.0.0",
+    "gulp-pug": "4.0.1",
+    "gulp-sass": "4.0.2",
+    "gulp-sourcemaps": "2.6.5",
+    "gulp-stylelint": "8.0.0",
+    "gulp-svg-sprite": "1.5.0",
+    "gulp-zopfli-green": "^4.0.0",
+    "hard-source-webpack-plugin": "0.13.1",
+    "husky": "1.3.1",
+    "imagemin-mozjpeg": "8.0.0",
+    "imagemin-pngquant": "7.0.0",
+    "lint-staged": "8.1.5",
+    "node-sass-glob-importer": "5.3.1",
+    "node-sass-package-importer": "5.3.1",
+    "plugin-error": "1.0.1",
+    "prettier": "1.16.4",
+    "pug": "2.0.3",
+    "require-dir": "1.2.0",
+    "stylelint": "9.10.1",
+    "stylelint-config-recess-order": "2.0.1",
+    "stylelint-config-standard": "18.2.0",
+    "stylelint-formatter-pretty": "1.0.3",
+    "stylelint-order": "2.1.0",
+    "stylelint-scss": "3.5.4",
+    "terser-webpack-plugin": "1.2.3",
+    "webpack": "4.29.6",
+    "webpack-cli": "3.3.0"
+  },
+  "dependencies": {
+    "awesome-sass-easing": "^1.1.2",
+    "core-js": "3",
+    "node-noop": "^1.0.0",
+    "normalize.css": "^8.0.1",
+    "pixi.js": "^5.1.2"
+  }
+}

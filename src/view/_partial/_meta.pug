@@ -1,0 +1,33 @@
+meta(charset="utf-8")
+meta(http-equiv="X-UA-Compatible" content="IE=edge")
+
+if(page.keywords)
+  meta(name="keywords" content=page.keywords)
+if(page.description)
+  meta(name="description" content=page.description)
+
+meta(name="viewport" content="width=device-width, shrink-to-fit=no")
+meta(name="format-detection" content="telephone=no, email=no, address=no")
+
+if(ogp)
+  if(ogp.title)
+    meta(property="og:title" content=ogp.title)
+  if(ogp.type)
+    meta(property="og:type" content=ogp.type)
+  if(ogp.url)
+    meta(property="og:url" content=ogp.url)
+  if(ogp.locale)
+    meta(property="og:locale" content=ogp.locale)
+  if(ogp.image)
+    meta(property="og:image" content=ogp.image)
+  if(ogp.siteName)
+    meta(property="og:site_name" content=ogp.siteName)
+  if(ogp.description)
+    meta(property="og:description" content=ogp.description)
+
+if(page.title)
+  title #{page.title} | #{site.name}
+else
+  title #{site.name}
+
+link(rel="icon" type="image/x-icon" href=site.path.image + "common/favicon.ico")

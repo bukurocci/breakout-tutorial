@@ -1,0 +1,15 @@
+{
+  "name": "Vector Sample",
+  "keywords": "site keywords",
+  "description": "site description",
+  "url": "http://www.example.com/",
+  "relativeURL": "/",
+  "path": {
+    "css": "/assets/css/",
+    "script": "/assets/js/",
+    "image": "/assets/images/",
+    "sprite": "/assets/sprite/"
+  },
+  "favicon": "/assets/image/favicon.ico",
+  "locale": "ja_JP"
+}

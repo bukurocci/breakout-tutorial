@@ -1,0 +1,44 @@
+include ../_mixin/_mixin
+
+block pageVars
+  -
+    var page = {
+      title: 'test',
+      keywords: site.keywords,
+      description: site.description
+    };
+block ogpVars
+  -
+    var ogp = {
+      title: page.title ? page.title + ' | ' + site.name : site.name,
+      image: site.url + 'assets/images/common/ogp.jpg',
+      locale: site.locale,
+      url: site.url + (outputFileRelativePath.replace(/(\/?)index\.html$/, '$1')),
+      siteName: site.name,
+      description: page.description ? page.description : site.description,
+      type: 'article'
+    };
+
+doctype html
+html(lang="ja")
+  head(prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#")
+    include ../_partial/_meta
+    include ../_partial/_style
+    include ../_partial/_headscript
+
+  body
+    block pagebefore
+
+    .l-page#page
+      block header
+        include ../_partial/_header
+
+      block content
+        p content string goes here...
+
+      block footer
+        include ../_partial/_footer
+
+    block pageafter
+
+    include ../_partial/_footerscript
