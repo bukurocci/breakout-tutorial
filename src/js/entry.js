@@ -1,4 +1,10 @@
 import * as PIXI from 'pixi.js';
+import Vector2 from './Vector2';
+
+// ブロック崩しの幅
+const APP_WIDTH = 600;
+// ブロック崩しの高さ
+const APP_HEIGHT = 480;
 
 document.addEventListener('DOMContentLoaded', () => {
   const wrapper = document.querySelector('.js-canvas');
@@ -50,12 +56,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return g;
   };
 
-  const tick = () => {
-    // ball.x = ball.x + 1;
-    // ball.y = ball.y + 1;
+  const clamp = (value, min, max) => {
+    // 指定した最小値より小さい場合、最小値にする
+    if (value < min) {
+      value = min;
+    }
+    // 指定した最大値より場合、大きい最大値にする
+    else if (value > max) {
+      value = max;
+    }
 
-    board.x = board.x + 1;
-    board.y = board.x + 2;
+    return value;
+  };
+
+  // 毎フレーム実行されて、描画位置などをアップデートする
+  const tick = () => {
+    board.x = clamp(mousePosition.x, 0, APP_WIDTH);
   };
 
   // ブロック崩しのボール
@@ -63,9 +79,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ボールを打つ板
   const board = drawRect(100, 10);
+  board.x = 0;
+  board.y = APP_HEIGHT - 50;
 
+  // 横方向に50px基準点をずらす
+  board.pivot.x = 50;
+
+  const mousePosition = new Vector2(0, 0);
+
+  // ステージをマウスカーソルに反応させる
+  app.stage.interactive = true;
+
+  // ステージにグラフィックを登録する
   app.stage.addChild(ball);
   app.stage.addChild(board);
+
+  // mousemoveを監視する
+  app.stage.on('pointermove', event => {
+    mousePosition.x = event.data.global.x;
+    mousePosition.y = event.data.global.y;
+  });
 
   // 描画 Canvas を DOM に挿入
   wrapper.appendChild(app.view);
