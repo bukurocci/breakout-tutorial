@@ -9,6 +9,10 @@ const APP_HEIGHT = 480;
 // ボールの半径
 const BALL_RADIUS = 10;
 
+const BOARD_IMPACT_RATIO = 0.1;
+
+const BOAERD_IMPACT_VELOCITY_MAX = 5;
+
 document.addEventListener('DOMContentLoaded', () => {
   const wrapper = document.querySelector('.js-canvas');
 
@@ -84,14 +88,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 板との衝突判定
     if (hitTest(ball, board)) {
-      ball.y -= BALL_RADIUS - Math.abs(ball.y - board.y);
-      ball._direction.y = -ball._direction.y;
+      // ボールの侵攻方向の反対のベクトル
+      const nid = Vector2.negate(ball._direction);
+      // 板の上方向のベクトル
+      const nbu = board._up.clone();
+      const ia = Vector2.dot(nid, nbu);
+
+      if (ia > 0) {
+        // 板の速度
+        const bv = new Vector2(board.x, board.y);
+        bv.subtract(board._prev);
+
+        if (bv.length > BOAERD_IMPACT_VELOCITY_MAX) {
+          bv.scale(BOAERD_IMPACT_VELOCITY_MAX / bv.length);
+        }
+
+        // 板の進行方向
+        const bd = bv.clone();
+        bd.normalize();
+
+        // 板とボールの進行方向の内積
+        const pdot = Vector2.dot(ball._direction, bd);
+
+        if (bv.length > 2 && pdot <= 0) {
+          ball._direction.x = -ball._direction.x;
+        }
+
+        ball.y -= BALL_RADIUS - Math.abs(ball.y - board.y);
+
+        ball._direction.x += bv.x * BOARD_IMPACT_RATIO * ia;
+        ball._direction.y = -ball._direction.y;
+        ball._direction.normalize();
+      }
     }
 
     // 天井との衝突判定
     if (ball.y < BALL_RADIUS) {
       ball._direction.y = -ball._direction.y;
     }
+
+    // 左右の壁との衝突判定
+    if (ball.x < BALL_RADIUS || ball.x > APP_WIDTH - BALL_RADIUS) {
+      ball._direction.x = -ball._direction.x;
+    }
+
+    board._prev.x = board.x;
+    board._prev.y = board.y;
   };
 
   // ブロック崩しのボール
@@ -100,12 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
   ball.y = 50;
   ball._direction = new Vector2(0, 1);
   ball._direction.normalize();
-  ball._speed = 2;
+  ball._speed = 4;
 
   // ボールを打つ板
   const board = drawRect(50, 5);
   board.x = 0;
   board.y = APP_HEIGHT - 50;
+  board._up = new Vector2(0, -1);
+  board._prev = new Vector2(board.x, board.y);
 
   // 横方向に50px基準点をずらす
   board.pivot.x = 50;
