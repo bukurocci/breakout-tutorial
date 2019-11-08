@@ -1,10 +1,13 @@
 import * as PIXI from 'pixi.js';
 import Vector2 from './Vector2';
+import hitTest from './hitTest';
 
 // ブロック崩しの幅
 const APP_WIDTH = 600;
 // ブロック崩しの高さ
 const APP_HEIGHT = 480;
+// ボールの半径
+const BALL_RADIUS = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
   const wrapper = document.querySelector('.js-canvas');
@@ -29,10 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     g.beginFill(0xff0000);
 
     // 丸を描く
-    g.drawCircle(0, 0, radius);
+    g.drawCircle(radius, radius, radius);
 
-    g.pivot.x = -radius;
-    g.pivot.y = -radius;
+    g.pivot.x = radius;
+    g.pivot.y = radius;
 
     // もう塗りました
     g.endFill();
@@ -72,13 +75,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // 毎フレーム実行されて、描画位置などをアップデートする
   const tick = () => {
     board.x = clamp(mousePosition.x, 0, APP_WIDTH);
+
+    const velocity = ball._direction.clone();
+    velocity.scale(ball._speed);
+
+    ball.x = ball.x + velocity.x;
+    ball.y = ball.y + velocity.y;
+
+    // 板との衝突判定
+    if (hitTest(ball, board)) {
+      ball.y -= BALL_RADIUS - Math.abs(ball.y - board.y);
+      ball._direction.y = -ball._direction.y;
+    }
+
+    // 天井との衝突判定
+    if (ball.y < BALL_RADIUS) {
+      ball._direction.y = -ball._direction.y;
+    }
   };
 
   // ブロック崩しのボール
-  const ball = drawCircle(10);
+  const ball = drawCircle(BALL_RADIUS);
+  ball.x = APP_WIDTH * 0.5;
+  ball.y = 50;
+  ball._direction = new Vector2(0, 1);
+  ball._direction.normalize();
+  ball._speed = 2;
 
   // ボールを打つ板
-  const board = drawRect(100, 10);
+  const board = drawRect(50, 5);
   board.x = 0;
   board.y = APP_HEIGHT - 50;
 
