@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const dot = Vector2.dot(boardDirection, ball._direction);
 
-      if (boardVeclovity.length > 10 && dot < 0) {
+      if (boardVeclovity.length > 2 && dot < 0) {
         ball._direction.x = -ball._direction.x;
       }
 
