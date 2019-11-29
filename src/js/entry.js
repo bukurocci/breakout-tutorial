@@ -84,6 +84,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 板との衝突判定
     if (hitTest(ball, board)) {
+      // ボールの速度を出す
+      const boardVeclovity = new Vector2(board.x, board.y);
+      boardVeclovity.subtract(board._prev);
+
+      // ボールの速度から進行方向を取得する
+      const boardDirection = boardVeclovity.clone();
+      boardDirection.normalize();
+
+      const dot = Vector2.dot(boardDirection, ball._direction);
+
+      if (boardVeclovity.length > 10 && dot < 0) {
+        ball._direction.x = -ball._direction.x;
+      }
+
       ball.y -= BALL_RADIUS - Math.abs(ball.y - board.y);
       ball._direction.y = -ball._direction.y;
     }
@@ -92,20 +106,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ball.y < BALL_RADIUS) {
       ball._direction.y = -ball._direction.y;
     }
+
+    // 左右の衝突判定
+    if (ball.x < BALL_RADIUS) {
+      ball._direction.x = -ball._direction.x;
+    }
+
+    if (ball.x > APP_WIDTH - BALL_RADIUS) {
+      ball._direction.x = -ball._direction.x;
+    }
+
+    // 前の座標を更新する（次のフレームに向けて）
+    board._prev.x = board.x;
+    board._prev.y = board.y;
   };
 
   // ブロック崩しのボール
   const ball = drawCircle(BALL_RADIUS);
   ball.x = APP_WIDTH * 0.5;
   ball.y = 50;
-  ball._direction = new Vector2(0, 1);
+  ball._direction = new Vector2(1, 1);
   ball._direction.normalize();
-  ball._speed = 2;
+  ball._speed = 5;
 
   // ボールを打つ板
   const board = drawRect(50, 5);
   board.x = 0;
   board.y = APP_HEIGHT - 50;
+  board._prev = new Vector2(board.x, board.y);
 
   // 横方向に50px基準点をずらす
   board.pivot.x = 50;
