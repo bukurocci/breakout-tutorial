@@ -9,6 +9,12 @@ const APP_HEIGHT = 480;
 // ボールの半径
 const BALL_RADIUS = 10;
 
+// 板の力をどれだけボールに加えるか
+const BOARD_IMPACT_RATIO = 0.1;
+
+// 考慮する板の速度の最大値
+const BOARD_IMPACT_VELOCITY_MAX = 5;
+
 document.addEventListener('DOMContentLoaded', () => {
   const wrapper = document.querySelector('.js-canvas');
 
@@ -84,13 +90,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 板との衝突判定
     if (hitTest(ball, board)) {
-      // ボールの速度を出す
+      // ボールの進行方向の逆
+      const invBallDirection = new Vector2.negate(ball._direction);
+      // ボードの上方向のベクトル
+      const boardUp = new Vector2(0, -1);
+      // cos(衝突角度)
+      const impactAngle = Vector2.dot(invBallDirection, boardUp);
+
+      // ボードの速度を出す
       const boardVeclovity = new Vector2(board.x, board.y);
       boardVeclovity.subtract(board._prev);
 
-      // ボールの速度から進行方向を取得する
+      // ボードの速度から進行方向を取得する
       const boardDirection = boardVeclovity.clone();
       boardDirection.normalize();
+
+      // ボードの上ベクトルと、ボールの進行方向の反対のベクトルのなす角が90度未満の時
+      if (impactAngle > 0) {
+        if (boardVeclovity.length > BOARD_IMPACT_VELOCITY_MAX) {
+          boardVeclovity.normalize();
+          boardVeclovity.scale(BOARD_IMPACT_VELOCITY_MAX);
+        }
+      }
 
       const dot = Vector2.dot(boardDirection, ball._direction);
 
@@ -99,7 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       ball.y -= BALL_RADIUS - Math.abs(ball.y - board.y);
+
+      ball._direction.x += boardVeclovity.x * impactAngle * BOARD_IMPACT_RATIO;
       ball._direction.y = -ball._direction.y;
+      ball._direction.normalize();
     }
 
     // 天井との衝突判定
@@ -125,9 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const ball = drawCircle(BALL_RADIUS);
   ball.x = APP_WIDTH * 0.5;
   ball.y = 50;
-  ball._direction = new Vector2(1, 1);
+  ball._direction = new Vector2(0, 1);
   ball._direction.normalize();
-  ball._speed = 5;
+  ball._speed = 2;
 
   // ボールを打つ板
   const board = drawRect(50, 5);
