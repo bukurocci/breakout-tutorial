@@ -7,7 +7,7 @@ const APP_WIDTH = 600;
 // ブロック崩しの高さ
 const APP_HEIGHT = 480;
 // ボールの半径
-const BALL_RADIUS = 10;
+const BALL_RADIUS = 4;
 
 // 板の力をどれだけボールに加えるか
 const BOARD_IMPACT_RATIO = 0.1;
@@ -50,11 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // 指定した幅と高さの四角形を描く関数
-  const drawRect = (width, height) => {
+  const drawRect = (width, height, color = 0x00ff00) => {
     const g = new PIXI.Graphics();
 
     // 塗りますよ
-    g.beginFill(0x00ff00);
+    g.beginFill(color);
 
     // 四角をかきますよ
     g.drawRect(0, 0, width, height);
@@ -88,10 +88,47 @@ document.addEventListener('DOMContentLoaded', () => {
     ball.x = ball.x + velocity.x;
     ball.y = ball.y + velocity.y;
 
+    // ボールとブロックの衝突判定
+    const hitBlocks = blocks.filter(block => hitTest(ball, block));
+
+    if (hitBlocks.length !== 0) {
+      hitBlocks.forEach(block => {
+        const halfW = block.width * 0.5;
+        const halfH = block.height * 0.5;
+
+        const blockUp = new Vector2(0, -1);
+        const blockPoint = new Vector2(block.x, block.y);
+        const impactPoint = new Vector2(ball.x, ball.y);
+        impactPoint.subtract(blockPoint);
+        impactPoint.normalize();
+
+        const dot = Vector2.dot(blockUp, impactPoint);
+        const theta = Math.acos(dot);
+        const phi = Math.atan2(halfW, halfH);
+
+        //ブロックに左右からヒット
+        if (phi <= theta && theta <= Math.PI - phi) {
+          ball._direction.x = -ball._direction.x;
+        }
+        // ブロックに上下からヒット
+        else {
+          ball._direction.y = -ball._direction.y;
+        }
+
+        const index = blocks.indexOf(block);
+
+        if (index > -1) {
+          blocks.splice(index, 1);
+        }
+
+        app.stage.removeChild(block);
+      });
+    }
+
     // 板との衝突判定
     if (hitTest(ball, board)) {
       // ボールの進行方向の逆
-      const invBallDirection = new Vector2.negate(ball._direction);
+      const invBallDirection = Vector2.negate(ball._direction);
       // ボードの上方向のベクトル
       const boardUp = new Vector2(0, -1);
       // cos(衝突角度)
@@ -148,19 +185,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // ブロック崩しのボール
   const ball = drawCircle(BALL_RADIUS);
   ball.x = APP_WIDTH * 0.5;
-  ball.y = 50;
+  ball.y = 180;
   ball._direction = new Vector2(0, 1);
   ball._direction.normalize();
-  ball._speed = 2;
+  ball._speed = 4;
 
   // ボールを打つ板
-  const board = drawRect(50, 5);
+  const board = drawRect(100, 5);
   board.x = 0;
   board.y = APP_HEIGHT - 50;
   board._prev = new Vector2(board.x, board.y);
-
   // 横方向に50px基準点をずらす
   board.pivot.x = 50;
+
+  // ブロック
+  let blocks = [];
+
+  // ブロックの配置
+  for (let i = 0, iz = 45; i < iz; i++) {
+    const block = drawRect(50, 10, 0x0000bb);
+    block.pivot.x = 25;
+    block.pivot.y = 5;
+    block.x = 35 + (50 + 10) * (i % 9) + 25;
+    block.y = 50 + 20 * Math.floor(i / 9) + 5;
+    blocks.push(block);
+  }
 
   const mousePosition = new Vector2(0, 0);
 
@@ -170,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ステージにグラフィックを登録する
   app.stage.addChild(ball);
   app.stage.addChild(board);
+  app.stage.addChild(...blocks);
 
   // mousemoveを監視する
   app.stage.on('pointermove', event => {
